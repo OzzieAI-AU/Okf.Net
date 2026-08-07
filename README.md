@@ -68,6 +68,4 @@ The parsed data is mapped to strictly typed C# records:
 
 This software is released under the **Apache License, Version 2.0**.
 
-```
-
 ---
