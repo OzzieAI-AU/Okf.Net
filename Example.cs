@@ -4,9 +4,28 @@
     using Okf.Net;
 
 
+    /// <summary>
+    /// Serves as an illustrative example class demonstrating how to load and consume 
+    /// Open Knowledge Framework (OKF) bundles within the <see cref="Okf.Net"/> namespace.
+    /// </summary>
+    /// <remarks>
+    /// This class provides a practical reference implementation for developers to understand
+    /// how to integrate the OKF library, parse repositories, and safely access concept metadata.
+    /// </remarks>
     internal class Example
     {
 
+
+        /// <summary>
+        /// Asynchronously loads a knowledge bundle from a specified file path, iterates through the loaded 
+        /// concepts, and outputs their metadata, extensions, and relationships to the console.
+        /// </summary>
+        /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
+        /// <remarks>
+        /// This method demonstrates performing fast, thread-safe read operations on the parsed bundle structure.
+        /// Once parsed, the bundle and its retrieved concepts are immutable and can be safely registered
+        /// as singletons within Dependency Injection (DI) containers.
+        /// </remarks>
         private async Task ExampleAsync()
         {
 

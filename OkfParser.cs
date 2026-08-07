@@ -12,11 +12,32 @@
     using YamlDotNet.Serialization;
 
 
+    /// <summary>
+    /// Provides static methods to parse and load Open Knowledge Format (OKF) Knowledge Bundles 
+    /// and individual OKF concept files asynchronously.
+    /// </summary>
+    /// <remarks>
+    /// The parser processes directories containing Markdown files, extracting frontmatter,
+    /// content bodies, and outbound links while adhering to the OKF Specification.
+    /// </remarks>
     public static class OkfParser
     {
+
+
         /// <summary>
         /// Asynchronously parses an OKF Knowledge Bundle into memory safely and concurrently.
         /// </summary>
+        /// <param name="rootDirectory">The physical path to the root directory containing the OKF bundle.</param>
+        /// <param name="cancellationToken">A token to monitor for cancellation requests.</param>
+        /// <returns>A task that represents the asynchronous load operation, containing the populated <see cref="OkfBundle"/>.</returns>
+        /// <exception cref="ArgumentException">Thrown when the <paramref name="rootDirectory"/> is null or whitespace.</exception>
+        /// <exception cref="DirectoryNotFoundException">Thrown when the specified <paramref name="rootDirectory"/> does not exist.</exception>
+        /// <exception cref="OperationCanceledException">Thrown when the operation is canceled via the <paramref name="cancellationToken"/>.</exception>
+        /// <remarks>
+        /// This method scans the directory for Markdown (<c>*.md</c>) files recursively. 
+        /// It automatically identifies and segregates special reserved files (<c>index.md</c> and <c>log.md</c>) 
+        /// from standard concept files according to the OKF Spec §3.1.
+        /// </remarks>
         public static async Task<OkfBundle> LoadBundleAsync(string rootDirectory, CancellationToken cancellationToken = default)
         {
             if (string.IsNullOrWhiteSpace(rootDirectory))
@@ -74,6 +95,23 @@
             };
         }
 
+
+        /// <summary>
+        /// Parses an individual OKF concept file asynchronously, separating its frontmatter metadata and Markdown body content.
+        /// </summary>
+        /// <param name="filePath">The physical path to the concept Markdown file.</param>
+        /// <param name="conceptId">The unique identifier of the concept, usually derived from the relative file path.</param>
+        /// <param name="ct">A token to monitor for cancellation requests.</param>
+        /// <returns>A task representing the asynchronous operation, containing the parsed <see cref="OkfConcept"/>.</returns>
+        /// <exception cref="OkfParseException">
+        /// Thrown when the concept file is missing the required YAML frontmatter block or if the frontmatter is unterminated.
+        /// </exception>
+        /// <exception cref="OperationCanceledException">Thrown when the operation is canceled via the <paramref name="ct"/>.</exception>
+        /// <remarks>
+        /// In accordance with Spec §4, the YAML frontmatter block must be delimited by <c>---</c> on its own line 
+        /// at the very start of the file. The method locates the block boundaries, isolates the YAML configuration, 
+        /// extracts outbound links from the body content, and populates the model.
+        /// </remarks>
         private static async Task<OkfConcept> ParseConceptAsync(string filePath, string conceptId, CancellationToken ct)
         {
 
@@ -109,6 +147,21 @@
             };
         }
 
+
+        /// <summary>
+        /// Parses the YAML frontmatter block extracted from a concept Markdown file.
+        /// </summary>
+        /// <param name="yaml">The raw YAML content extracted from the frontmatter block.</param>
+        /// <param name="filePath">The file path being parsed, used for error reporting inside exceptions.</param>
+        /// <returns>A populated <see cref="OkfFrontmatter"/> containing standard properties and any schema extensions.</returns>
+        /// <exception cref="OkfParseException">
+        /// Thrown when the YAML block is malformed, cannot be deserialized, or is missing the required "type" field.
+        /// </exception>
+        /// <remarks>
+        /// This parser strictly verifies the existence of the <c>type</c> parameter. Other standard properties 
+        /// such as <c>title</c>, <c>description</c>, <c>resource</c>, <c>tags</c>, and <c>timestamp</c> are extracted and mapped. 
+        /// Any non-standard fields are preserved and populated within the <see cref="OkfFrontmatter.Extensions"/> dictionary.
+        /// </remarks>
         private static OkfFrontmatter ParseFrontmatter(string yaml, string filePath)
         {
 
@@ -175,6 +228,17 @@
             };
         }
 
+
+        /// <summary>
+        /// Extracts outbound Markdown links from the Markdown body content using the Markdig Abstract Syntax Tree (AST).
+        /// </summary>
+        /// <param name="body">The Markdown content body to analyze.</param>
+        /// <returns>A list of <see cref="OkfLink"/> objects representing standard, non-image links found within the body text.</returns>
+        /// <remarks>
+        /// In accordance with Spec §5, this method uses a structured Markdig AST parser instead of regular expressions. 
+        /// This safely ignores non-semantic links, such as links defined inside raw markdown code blocks (<c></c>).
+        /// It processes inline link children to extract full raw link text.
+        /// </remarks>
         private static List<OkfLink> ExtractLinks(string body)
         {
             // Spec §5: Extract Markdown Links.
