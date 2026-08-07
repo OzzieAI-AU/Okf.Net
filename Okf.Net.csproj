@@ -1,0 +1,18 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+	<PropertyGroup>
+		<TargetFramework>net8.0</TargetFramework>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<Nullable>enable</Nullable>
+		<LangVersion>12</LangVersion>
+		<TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<!-- Robust YAML parsing -->
+		<PackageReference Include="YamlDotNet" Version="15.1.2" />
+		<!-- Markdown AST parsing (No Regex Shortcuts) -->
+		<PackageReference Include="Markdig" Version="0.37.0" />
+	</ItemGroup>
+
+</Project>

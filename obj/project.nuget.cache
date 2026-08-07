@@ -1,0 +1,11 @@
+{
+  "version": 2,
+  "dgSpecHash": "chCgqqYDAJU=",
+  "success": true,
+  "projectFilePath": "C:\\Users\\Jingl\\Desktop\\OzzieAI Code\\Okf.Net\\Okf.Net\\Okf.Net.csproj",
+  "expectedPackageFiles": [
+    "C:\\Users\\Jingl\\.nuget\\packages\\markdig\\0.37.0\\markdig.0.37.0.nupkg.sha512",
+    "C:\\Users\\Jingl\\.nuget\\packages\\yamldotnet\\15.1.2\\yamldotnet.15.1.2.nupkg.sha512"
+  ],
+  "logs": []
+}
